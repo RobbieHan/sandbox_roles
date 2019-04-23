@@ -1,0 +1,110 @@
+# setenforce 0 and remove selinux
+- name: Getenforce
+  command: getenforce
+  register: getenforce_info
+- name: Setenforce
+  command: setenforce 0
+  when: 
+    - getenforce_info.stdout == "Enforcing" 
+    - centos7_setenforce
+- name: Remove selinux
+  yum: name=firewalld state=absent
+  when: centos7_firewalld_absent
+
+- name: Install base packages
+  yum: name={{ item }} state=latest
+  with_items:
+    - gcc
+    - gcc-c++
+    - openssl-devel
+    - lrzsz
+    - unzip
+    - zip
+    - ntpdate
+    - vim
+    - tree
+    - net-tools
+    - libselinux-python
+  ignore_errors: true
+  when: centos7_install_base_packages
+
+- name: Yum upate
+  command: yum -y update
+  when: centos7_yum_update
+
+- name: Install epel-release
+  yum: name=epel-release
+  when: centos7_install_epel
+
+- name: Install iptables
+  yum: name=iptables-services state=present
+  when: centos7_install_iptables
+- name: Start iptables
+  shell: systemctl start iptables; systemctl enable iptables
+  when: 
+    - centos7_install_iptables
+    - centos7_start_iptables
+
+# copy id_rsa.pub
+- name: Mkdir .ssh
+  file: name=.ssh state=directory
+  when: centos7_create_sshdir
+- name: Copy id_rsa.pub
+  copy: src=common_id_rsa.pub dest=/root/.ssh/authorized_keys
+  when:
+    - centos7_create_sshdir
+    - centos7_cp_authorkey
+
+- name: Modify locale.conf
+  shell: echo LANG="en_US.UTF-8" > /etc/locale.conf
+  when: centos7_modify_locale
+
+- name: Install Development Tools group
+  shell: yum groupinstall "Development Tools" -y
+  when: centos7_install_development
+
+- name: Modify timezone
+  shell: ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
+  when: centos7_modify_timezone
+
+- name: Time crontab
+  cron: minute="0" hour="*/2" job="/usr/sbin/ntpdate pool.ntp.org"  name="time crontab" 
+  when: centos7_set_time_crontab
+    
+- name: Modify sysctl.conf
+  copy: src=common_sysctl.conf dest=/etc/sysctl.conf
+  when: centos7_modify_sysctl
+- name: sysctl -p
+  shell: sysctl -p
+  when: centos7_modify_sysctl
+
+- name: Ulimit -SHn 102400
+  shell: ulimit -SHn 102400
+  when: centos7_modify_ulimit
+- name: Modify limits.conf
+  lineinfile: path=/etc/security/limits.conf line="*  -  nofile 102400"
+  when: centos7_modify_ulimit
+
+- name: Replace sshd_config
+  template: src=common_sshd_config dest=/etc/ssh/sshd_config
+  notify: restart ssh
+  when: centos7_replace_sshd_config
+
+- name: Add iptables
+  lineinfile: 
+    path: /etc/sysconfig/iptables 
+    insertbefore: "-A INPUT -j REJECT.*"
+    line: "-A INPUT -p tcp -m state --state NEW -m tcp --dport {{ ssh_port }} -j ACCEPT"
+  when: 
+    - centos7_iptables_accept_ssh_port
+    - ssh_port != 22
+  motify: restart iptables
+
+- name: Modify motd
+  template: src=common_motd dest=/etc/motd
+  when: centos7_modify_motd
+
+- name: Set hostname
+  shell: hostnamectl set-hostname {{ host_name }}
+  when:
+    - centos7_set_hostname
