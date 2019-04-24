@@ -1,4 +1,5 @@
 centos7_setenforce: true
+centos7_modify_selinux: true
 centos7_firewalld_absent: true
 centos7_install_base_packages: true
 centos7_yum_update: true

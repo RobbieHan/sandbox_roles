@@ -7,7 +7,11 @@
   when: 
     - getenforce_info.stdout == "Enforcing" 
     - centos7_setenforce
-- name: Remove selinux
+- name: Modify selinux
+  shell: sed -i 's/SELINUX=enforcing/SELINUX=disabled/g' /etc/selinux/config
+  when: centos7_modify_selinux
+  
+- name: Remove firewalld
   yum: name=firewalld state=absent
   when: centos7_firewalld_absent
 
