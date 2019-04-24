@@ -108,3 +108,4 @@
   shell: hostnamectl set-hostname {{ host_name }}
   when:
     - centos7_set_hostname
+    - host_name

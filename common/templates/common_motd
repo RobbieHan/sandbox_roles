@@ -1,4 +1,4 @@
 
-{{ host_name }} {{ ansible_host }}
+{% if host_name %} {{ host_name }} {% endif %} {{ ansible_host }}
 
 
