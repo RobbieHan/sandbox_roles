@@ -98,7 +98,7 @@
   when: 
     - centos7_iptables_accept_ssh_port
     - ssh_port != 22
-  motify: restart iptables
+  notify: restart iptables
 
 - name: Modify motd
   template: src=common_motd dest=/etc/motd
@@ -108,4 +108,4 @@
   shell: hostnamectl set-hostname {{ host_name }}
   when:
     - centos7_set_hostname
-    - host_name
+    - host_name is defined
