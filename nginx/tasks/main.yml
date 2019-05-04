@@ -1,0 +1,35 @@
+- name: Install base packages
+  yum: name={{ item }} state=latest
+  with_items:
+    - gcc 
+    - automake 
+    - autoconf 
+    - libtool 
+    - make 
+    - gcc-c++ 
+    - pcre-devel 
+    - zlib-devel 
+    - openssl-devel 
+    - wget 
+    - lrzsz
+ 
+- name: create nginx user
+  user: name={{ nginx_user }} shell=/user/bin/false
+  
+- name: download nginx
+  get_url:
+    url: {{ download_url }}/nginx-{{nginx-version}}.tar.gz
+    dest: {{ download_dir }}
+
+- name: Unarchive nginx
+  unarchive: 
+    src: {{ download_dir }}/nginx-{{ nginx-version }}.tar.gz 
+    dest: {{ download_dir }}
+    copy: no 
+
+- name: Copy nginx install script
+  template: src=nginx_install.sh dest={{download_dir}}/nginx-{{nginx_version}} mode=0744
+
+- name: Install nginx
+  shell: /bin/bash /{{download_dir}}/nginx-{{nginx_version}}/nginx_install.sh
+
