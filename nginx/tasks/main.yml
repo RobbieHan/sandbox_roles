@@ -2,14 +2,14 @@
   yum: name={{ item }} state=latest
   with_items:
     - gcc 
-    - automake 
-    - autoconf 
-    - libtool 
+    - automake
+    - autoconf
+    - libtool
     - make 
     - gcc-c++ 
-    - pcre-devel 
-    - zlib-devel 
-    - openssl-devel 
+    - pcre-devel
+    - zlib-devel
+    - openssl-devel
     - wget 
     - lrzsz
  
@@ -18,12 +18,12 @@
   
 - name: download nginx
   get_url:
-    url: {{ download_url }}/nginx-{{nginx-version}}.tar.gz
+    url: {{ download_url }}/nginx-{{nginx_version}}.tar.gz
     dest: {{ download_dir }}
 
 - name: Unarchive nginx
   unarchive: 
-    src: {{ download_dir }}/nginx-{{ nginx-version }}.tar.gz 
+    src: {{ download_dir }}/nginx-{{ nginx_version }}.tar.gz 
     dest: {{ download_dir }}
     copy: no 
 
@@ -32,4 +32,9 @@
 
 - name: Install nginx
   shell: /bin/bash /{{download_dir}}/nginx-{{nginx_version}}/nginx_install.sh
+  register: nginx_install_result
+
+- name: debug
+  debug: msg="nginx install successed!"
+  when: nginx_install_result is success
 
