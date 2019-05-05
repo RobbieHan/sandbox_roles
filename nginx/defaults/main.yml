@@ -1,21 +1,7 @@
-nginx_revproxy_sites:                                     
-  default:                                                
-    domains:                                                  
-      - example.com
-      - www.example.com
-    upstreams:                                               
-      - { backend_address: 192.168.0.100, backend_port: 80 }
-      - { backend_address: 192.168.0.101, backend_port: 8080 }
-    ssl: true 
 
-  example.org:                                               x
-    domains:                                                  
-      - example.org
-      - www.example.org
-    upstreams:                                                
-      - { backend_address: 192.168.0.200, backend_port: 80 }
-      - { backend_address: 192.168.0.201, backend_port: 8080 }
-    listen: 9000                                              
-    listen_ssl: 9001                                          
-    ssl: true                                                
-    letsencrypt: false   
+nginx_revproxy_config: false
+nginx_start_scripts: false
+nginx_start_service: false
+nginx_start_on_boot: false
+
+
