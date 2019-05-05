@@ -9,8 +9,7 @@ install_dir: /usr/local/nginx
 model_config:
   - "--user={{ nginx_user }}"
   - "--group={{ nginx_group }}"
-  - "--prefix={{ install_dir }}/nginx-{{ nginx_version }}"
-  - "--prefix=/usr/local/nginx-{{ nginx_version }]"
+  - "--prefix={{ install_dir }}"
   - "--with-http_realip_module"
   - "--with-http_sub_module"
   - "--with-http_gzip_static_module"
@@ -18,5 +17,3 @@ model_config:
   - "--with-http_ssl_module"
   - "--with-pcre"
 
-nginx_ports:
-  - 80

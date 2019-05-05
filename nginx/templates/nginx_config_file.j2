@@ -1,7 +1,9 @@
+user {{ nginx_user }}
 worker_processes  {{ ansible_processor_vcpus }};
 events {
     worker_connections  102400;
 }
+
 http {
     include       mime.types;
     default_type  application/octet-stream;
@@ -11,10 +13,59 @@ http {
                      '"$status" $body_bytes_sent "$http_referer" '  
                      '"$http_accept_language" "$http_user_agent" '; 
     sendfile        on;
+    tcp_nopush      on; 
+    tcp_nodelay     on;
+    server_tokens  off;
     keepalive_timeout  65;
 
+    
+
+    {% if item.key == ansible_host %}
+    upstream {{ item.value.desc }}_backend {
+        {% for upstream in item.value.upstreams %}
+           server {{ upstream.address }}:{{ upstream.port }}
+        {% endfor %}
+    } 
     server {
-        listen    80 default; 
+        listen       {{ listen_port | default:80 }};
+        server_name  {{ item.value.domains | join(' ') }};
+        access_log  logs/access.log  main;
+        location / {
+
+            {% if item.value.ssl_status %}
+                return    301  https://$server_name$request_url;
+            {% else %}
+                proxy_pass http://{{ item.value.desc }}_backend;
+            {% endif %}
+            }
+        }
+    }
+    
+    {% if item.value.ssl_status %}
+    server {
+        listen       {{ listen_ssl_port | default:443 }} ssl;
+        server_name  {{ item.value.domains | join(' ') }};
+        ssl_certificate  {{ item.value.ssl_crt }};
+        ssl_certificate_key {{ item.value.ssl_key;
+                ssl_session_timeout 50m;
+                ssl_protocols TLSv1.2;
+                ssl_ciphers AESGCM:ALL:!DH:!EXPORT:!RC4:+HIGH:!MEDIUM:!LOW:!aNULL:!eNULL;
+                ssl_prefer_server_ciphers on;
+        access_log  logs/access.log  main;
+        location / {
+                proxy_set_header Host $host;
+                proxy_set_header X-Real-IP $remote_addr;
+                proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+                proxy_request_buffering off;
+                proxy_ignore_client_abort on;
+                proxy_pass   https://{{ item.value.desc }};
+        }
+    }
+    {% endif %}
+    {% else %}
+    server {
+        listen       80;
+        server_name  localhost;
         location / {
             root   html;
             index  index.html index.htm;
@@ -24,23 +75,5 @@ http {
             root   html;
         }
     }
-    server {
-        listen       189 ssl;
-        server_name  test.com;
-        ssl_certificate  /etc/ssl/test.com.crt;
-        ssl_certificate_key /etc/ssl/test.com.key;
-                ssl_session_timeout 50m;
-                ssl_protocols TLSv1.2;
-                ssl_ciphers AESGCM:ALL:!DH:!EXPORT:!RC4:+HIGH:!MEDIUM:!LOW:!aNULL:!eNULL;
-                ssl_prefer_server_ciphers on;
-        access_log  logs/df.access.log  main;
-        location / {
-                proxy_set_header Host $host;
-                proxy_set_header X-Real-IP $remote_addr;
-                proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-                proxy_request_buffering off;
-                proxy_ignore_client_abort on;
-                proxy_pass   https://test:189;
-        }
-    }
+    {% endif %} 
 }

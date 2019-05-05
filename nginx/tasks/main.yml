@@ -18,23 +18,42 @@
   
 - name: download nginx
   get_url:
-    url: {{ download_url }}/nginx-{{nginx_version}}.tar.gz
-    dest: {{ download_dir }}
+    url: "{{ download_url }}/nginx-{{nginx_version}}.tar.gz"
+    dest: "{{ download_dir }}"
 
 - name: Unarchive nginx
   unarchive: 
-    src: {{ download_dir }}/nginx-{{ nginx_version }}.tar.gz 
-    dest: {{ download_dir }}
+    src: "{{ download_dir }}/nginx-{{ nginx_version }}.tar.gz"
+    dest: "{{ download_dir }}"
     copy: no 
 
 - name: Copy nginx install script
-  template: src=nginx_install.sh dest={{download_dir}}/nginx-{{nginx_version}} mode=0744
+  template: src=nginx_install.j2 dest=/tmp mode=0744
 
-- name: Install nginx
-  shell: /bin/bash /{{download_dir}}/nginx-{{nginx_version}}/nginx_install.sh
-  register: nginx_install_result
+- name: Nginx revproxy setting
+  template: src=nginx_config.j2 dest="{{ nginx_install_dir }}/conf/nginx.conf"
+  when:
+    - nginx_install_result is success
+    - nginx_revproxy_config
 
-- name: debug
-  debug: msg="nginx install successed!"
-  when: nginx_install_result is success
+- name: Copy nginx start scripts
+  copy: src=nginx_start_scripts dest=/etc/init.d/nginx mode=0755
+  when: 
+    - nginx_install_result is success
+    - nginx_start_scripts
 
+- name: Start nginx service
+  shell: /etc/init.d/nginx start
+  when:
+    - nginx_start_scripts
+    - nginx_start_service
+
+- name: Start nginx service on boot
+  lineinfile: 
+    path: /etc/rc.d/rc.local
+    line: "/etc/init.d/nginx start >/dev/null 2>&1"
+    mode: 0755
+  when: 
+    - nginx_start_scripts
+    - nginx_start_on_boot  
+    
