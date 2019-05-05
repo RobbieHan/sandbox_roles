@@ -14,8 +14,8 @@
         listen_port: 9000
         listen_ssl_port: 9001
         ssl_status: true
-        ssl_crt: /etc/ssl/test.com.crt;
-        ssl_key:  /etc/ssl/test.com.key;
+        ssl_crt: /etc/ssl/test.com.crt
+        ssl_key:  /etc/ssl/test.com.key
       192.168.0.101:
         desc: z_server
         domains:
