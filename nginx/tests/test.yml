@@ -3,16 +3,24 @@
   remote_user: root
   vars:
     nginx_revproxy_sites:                                     
-      10.0.1.221:
+      192.168.0.100:
         desc: t_server
         domains:
           - example.com
           - www.example.com
         upstreams:
-          - { address: 192.168.10.1, port: 80}
+          - { address: 192.168.10.11, port: 80}
           - { address: 192.168.10.12, port: 8080}
         listen_port: 9000
         listen_ssl_port: 9001
         ssl_status: true
         ssl_crt: /etc/ssl/test.com.crt;
         ssl_key:  /etc/ssl/test.com.key;
+      192.168.0.101:
+        desc: z_server
+        domains:
+          - example01.com
+          - wwww.example01.com
+        upstreams:
+          - { address: 192.168.0.21, port: 80}
+          - { address: 192.168.0.22, port:80}
