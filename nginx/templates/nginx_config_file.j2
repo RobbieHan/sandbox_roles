@@ -19,7 +19,7 @@ http {
     keepalive_timeout  65;
 
     
-    {% item value in nginx_revproxy_sites %}
+    {% item in nginx_revproxy_sites %}
     {% if item.host == ansible_host %}
     upstream {{ item.desc }}_backend {
         {% for upstream in item.upstreams %}
