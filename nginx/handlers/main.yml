@@ -1,0 +1,3 @@
+---
+- name: reload nginx
+  shell: {{ install_dir }}/sbin/nginx -s reload
