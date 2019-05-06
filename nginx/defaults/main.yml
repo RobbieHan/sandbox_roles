@@ -1,8 +1,6 @@
-nginx_allow_install: true
+nginx_install: true
+nginx_start_scripts: true
+nginx_start_service: true
+nginx_start_on_boot: true
 nginx_revproxy_config: false
-nginx_start_scripts: false
-nginx_start_service: false
-nginx_start_on_boot: false
 add_iptables_for_nginx: false
-
-

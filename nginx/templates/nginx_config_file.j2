@@ -19,34 +19,35 @@ http {
     keepalive_timeout  65;
 
     
-  {% for key, value in nginx_revproxy_sites.items() %}
-    {% if key == ansible_host %}
-    upstream {{ value.desc }}_backend {
-        {% for upstream in value.upstreams %}
-           server {{ upstream.address }}:{{ upstream.port }}
+    {% item value in nginx_revproxy_sites %}
+    {% if item.host == ansible_host %}
+    upstream {{ item.desc }}_backend {
+        {% for upstream in item.upstreams %}
+           server {{ upstream.address }}:{{ upstream.port }};
         {% endfor %}
     } 
     server {
-        listen       {{ listen_port | default:80 }};
-        server_name  {{ value.domains | join:" " }};
+        listen       {{ item.listen_port | default(80) }};
+        server_name  {{ item.domains | join(" ") }};
         access_log  logs/access.log  main;
         location / {
 
-            {% if value.ssl_status %}
-                return    301  https://$server_name$request_url;
+            {% if item.ssl_status %}
+                return   301  https://$server_name$request_uri
+                ;
             {% else %}
-                proxy_pass http://{{ value.desc }}_backend;
+                proxy_pass http://{{ item.desc }}_backend;
             {% endif %}
             }
         }
-    }
     
-    {% if value.ssl_status %}
+    
+    {% if item.ssl_status %}
     server {
-        listen       {{ listen_ssl_port | default:443 }} ssl;
-        server_name  {{ value.domains | join:" " }};
-        ssl_certificate  {{ value.ssl_crt }};
-        ssl_certificate_key {{ value.ssl_key }};
+        listen       {{ item.listen_ssl_port | default(443) }} ssl;
+        server_name  {{ item.domains | join(" ") }};
+        ssl_certificate  {{ item.ssl_crt }};
+        ssl_certificate_key {{ item.ssl_key }};
                 ssl_session_timeout 50m;
                 ssl_protocols TLSv1.2;
                 ssl_ciphers AESGCM:ALL:!DH:!EXPORT:!RC4:+HIGH:!MEDIUM:!LOW:!aNULL:!eNULL;
@@ -58,23 +59,11 @@ http {
                 proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
                 proxy_request_buffering off;
                 proxy_ignore_client_abort on;
-                proxy_pass   https://{{ value.desc }};
+                proxy_pass   https://{{ item.desc }}_backend;
         }
     }
     {% endif %}
-    {% else %}
-    server {
-        listen       80;
-        server_name  localhost;
-        location / {
-            root   html;
-            index  index.html index.htm;
-        }
-        error_page   500 502 503 504  /50x.html;
-        location = /50x.html {
-            root   html;
-        }
-    }
+
     {% endif %} 
  {% endfor %}
 }
