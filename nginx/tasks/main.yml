@@ -75,14 +75,18 @@
   blockinfile: 
     dest: /etc/sysconfig/iptables
     block: |
-      -A INPUT -p tcp -m tcp --dport "{{ item.listen_port | default(80) }}" -j ACCEPT; 
-      -A INPUT -p tcp -m tcp --dport "{{ item.listen_ssl_port | default(443) }}" -j ACCEPT; 
+      -A INPUT -p tcp -m tcp --dport {{ item.listen_port | default(80) }} -j ACCEPT
+      -A INPUT -p tcp -m tcp --dport {{ item.listen_ssl_port | default(443) }} -j ACCEPT
     insertbefore: "-A INPUT -j REJECT.*"
     backup: yes
   with_items: "{{nginx_revproxy_sites}}"
   when:
     - add_iptables_for_nginx
     - item.host == ansible_host
+
+- name: Restart iptables
+  service: name=iptables state=restarted
+  when: nginx_restart_iptables
 
 
 
