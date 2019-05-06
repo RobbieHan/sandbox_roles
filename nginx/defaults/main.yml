@@ -2,5 +2,6 @@ nginx_install: true
 nginx_start_scripts: true
 nginx_start_service: true
 nginx_start_on_boot: true
+nginx_copy_https_cert: false
 nginx_revproxy_config: false
 add_iptables_for_nginx: false

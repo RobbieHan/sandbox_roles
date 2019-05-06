@@ -57,6 +57,13 @@
     - nginx_start_on_boot
     - nginx_install_result is success
 
+- name: Copy https cert
+  copy: src={{item}} dest=/etc/ssl mode=0755
+  with_fileglob:
+    - "../files/https_cert/*"
+  when: 
+    - nginx_copy_https_cert
+
 - name: Nginx revproxy setting
   template: src=nginx_config_file.j2 dest="{{ install_dir }}/conf/nginx.conf"
   when:
