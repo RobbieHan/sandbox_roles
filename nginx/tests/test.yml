@@ -11,8 +11,8 @@
         upstreams:
           - { address: 192.168.10.11, port: 80}
           - { address: 192.168.10.12, port: 8080}
-        listen_port: 9000
-        listen_ssl_port: 9001
+        listen_port: 80
+        listen_ssl_port: 443
         ssl_status: true
         ssl_crt: /etc/ssl/test.com.crt
         ssl_key:  /etc/ssl/test.com.key
@@ -25,4 +25,5 @@
           - { address: 192.168.0.21, port: 80}
           - { address: 192.168.0.22, port: 80}
         ssl_status: false
-        
+  roles:
+    - nginx

@@ -32,7 +32,7 @@ http {
         access_log  logs/access.log  main;
 
       {% if item.ssl_status %}
-        return   301  https://$server_name$request_uri;
+        return   301  https://$server_name:{{ item.listen_ssl_port | default(443) }}$request_uri;
       {% else %}
         location / {
 
@@ -41,8 +41,6 @@ http {
             }
       {% endif %}
         }
-    
-    
     {% if item.ssl_status %}
     server {
         listen       {{ item.listen_ssl_port | default(443) }} ssl;
@@ -65,7 +63,6 @@ http {
         }
     }
     {% endif %}
-
     {% endif %} 
  {% endfor %}
 }
