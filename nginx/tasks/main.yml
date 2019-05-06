@@ -15,11 +15,11 @@
  
 - name: create nginx user
   user: name={{ nginx_user }} shell=/user/bin/false
-  
+   
 - name: download nginx
   get_url:
     url: "{{ download_url }}/nginx-{{nginx_version}}.tar.gz"
-    dest: "{{ download_dir }}"
+    dest: "{{ download_dir }}" 
 
 - name: Unarchive nginx
   unarchive: 
@@ -33,6 +33,7 @@
 - name: Install nginx
   shell: "/bin/bash /tmp/nginx_install.sh"
   register: nginx_install_result
+  when: nginx_allow_install
 
 - name: Nginx revproxy setting
   template: src=nginx_config_file.j2 dest="{{ install_dir }}/conf/nginx.conf"
@@ -43,7 +44,6 @@
 - name: Copy nginx start scripts
   copy: src=nginx_start_scripts dest=/etc/init.d/nginx mode=0755
   when: 
-    - nginx_install_result is success
     - nginx_start_scripts
 
 - name: Start nginx service
@@ -51,6 +51,7 @@
   when:
     - nginx_start_scripts
     - nginx_start_service
+    - nginx_install_result is success
 
 - name: Start nginx service on boot
   lineinfile: 
@@ -59,13 +60,18 @@
     mode: 0755
   when: 
     - nginx_start_scripts
-    - nginx_start_on_boot 
+    - nginx_start_on_boot
+    - nginx_install_result is success
 
 - name: Add iptables
   shell: iptables -I INPUT -p tcp -m tcp --dport "{{ item }}" -j ACCEPT; service iptables save
   with_items:
-    - "{{ item.value.listen_port | default:80 }}"
-    - "{{ item.value.listen_port | default:443 }}"
+    {% for key, value in nginx_revproxy_sites.items() %} 
+    {% if key == ansible_host %}
+    - "{{ value.listen_port | default:80 }}"
+    - "{{ value.listen_ssl_port | default:443 }}"
+    {% endif %}
+    {% endfor %}
   when:
     - add_iptables_for_nginx
     - item.key == ansible_host

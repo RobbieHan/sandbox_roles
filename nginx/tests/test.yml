@@ -23,4 +23,4 @@
           - wwww.example01.com
         upstreams:
           - { address: 192.168.0.21, port: 80}
-          - { address: 192.168.0.22, port:80}
+          - { address: 192.168.0.22, port: 80}

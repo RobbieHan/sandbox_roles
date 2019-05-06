@@ -19,7 +19,7 @@ http {
     keepalive_timeout  65;
 
     
-  {% for key, value in nginx_revproxy_sites %}
+  {% for key, value in nginx_revproxy_sites.items() %}
     {% if key == ansible_host %}
     upstream {{ value.desc }}_backend {
         {% for upstream in value.upstreams %}
@@ -28,7 +28,7 @@ http {
     } 
     server {
         listen       {{ listen_port | default:80 }};
-        server_name  {{ value.domains | join(' ') }};
+        server_name  {{ value.domains | join:" " }};
         access_log  logs/access.log  main;
         location / {
 
@@ -44,7 +44,7 @@ http {
     {% if value.ssl_status %}
     server {
         listen       {{ listen_ssl_port | default:443 }} ssl;
-        server_name  {{ value.domains | join(' ') }};
+        server_name  {{ value.domains | join:" " }};
         ssl_certificate  {{ value.ssl_crt }};
         ssl_certificate_key {{ value.ssl_key }};
                 ssl_session_timeout 50m;

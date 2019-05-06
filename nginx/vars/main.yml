@@ -16,4 +16,3 @@ model_config:
   - "--with-http_stub_status_module"
   - "--with-http_ssl_module"
   - "--with-pcre"
-
