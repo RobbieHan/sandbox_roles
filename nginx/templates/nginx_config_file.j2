@@ -30,15 +30,16 @@ http {
         listen       {{ item.listen_port | default(80) }};
         server_name  {{ item.domains | join(" ") }};
         access_log  logs/access.log  main;
+
+      {% if item.ssl_status %}
+        return   301  https://$server_name$request_uri;
+      {% else %}
         location / {
 
-            {% if item.ssl_status %}
-                return   301  https://$server_name$request_uri
-                ;
-            {% else %}
                 proxy_pass http://{{ item.desc }}_backend;
-            {% endif %}
+            
             }
+      {% endif %}
         }
     
     
@@ -46,6 +47,7 @@ http {
     server {
         listen       {{ item.listen_ssl_port | default(443) }} ssl;
         server_name  {{ item.domains | join(" ") }};
+        ssl   on;
         ssl_certificate  {{ item.ssl_crt }};
         ssl_certificate_key {{ item.ssl_key }};
                 ssl_session_timeout 50m;
