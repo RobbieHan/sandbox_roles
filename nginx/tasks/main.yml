@@ -83,10 +83,9 @@
   when:
     - add_iptables_for_nginx
     - item.host == ansible_host
+  notify: restart iptables
 
-- name: Restart iptables
-  service: name=iptables state=restarted
-  when: nginx_restart_iptables
+
 
 
 
