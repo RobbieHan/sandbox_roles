@@ -1,0 +1,15 @@
+---
+- hosts: test_server
+  remote_user: root
+  vars:
+    iptables_role_sites:                                     
+      - host: 192.168.0.100
+        allowed_ports:
+          - {port: "22", type: "tcp"}
+          - {port: "443", type: "tcp"}
+      - host: 192.168.0.100
+        allowed_ports:
+          - {port: "22", type: "tcp"}
+          - {port: "80", type: "tcp"}
+  roles:
+    - iptables

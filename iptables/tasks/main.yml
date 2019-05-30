@@ -1,0 +1,15 @@
+- name: Disable iptables
+  service: name=iptables state=stopped enabled=no
+  when:
+    - iptables_disable_iptables
+    - ansible_distribution == "CentOS"
+
+- name: Enable iptables
+  service: name=iptables state=started enabled=yes
+  when:
+    - iptables_enable_iptables
+    - ansible_distribution == "CentOS"
+
+- name: Modify iptables
+  template: src=iptables_rules.j2 dest="/etc/sysconfig/iptables"
+  when: iptables_modify_iptables

@@ -1,0 +1,19 @@
+# Firewall configuration written by system-config-firewall
+# Manual customization of this file is not recommended.
+*filter
+:INPUT ACCEPT [0:0]
+:FORWARD ACCEPT [0:0]
+:OUTPUT ACCEPT [0:0]
+-A INPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
+-A INPUT -p icmp -j ACCEPT
+-A INPUT -i lo -j ACCEPT
+{% for role in iptables_role_sites %}
+{% if role.host == ansible_host %}
+{% for allowed_port in allowed_ports %}
+-A INPUT -p {{ allowed_port.type|default(tcp) }} --dport {{ allowed_port.port }} -j ACCEPT
+{% endfor %}
+{% end if %}
+{% endfor %}
+-A INPUT -j REJECT --reject-with icmp-host-prohibited
+-A FORWARD -j REJECT --reject-with icmp-host-prohibited
+COMMIT
