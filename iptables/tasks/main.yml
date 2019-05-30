@@ -13,3 +13,4 @@
 - name: Modify iptables
   template: src=iptables_rules.j2 dest="/etc/sysconfig/iptables"
   when: iptables_modify_iptables
+  notify: restart iptables
