@@ -11,6 +11,10 @@
     - ansible_distribution == "CentOS"
 
 - name: Modify iptables
-  template: src=iptables_rules.j2 dest="/etc/sysconfig/iptables"
-  when: iptables_modify_iptables
+  template: src=iptables_rules.j2 dest="/etc/sysconfig/iptables" mode=0600
+  when: 
+    - iptables_modify_iptables
+    - item.host == ansible_host
+  with_items: "{{ iptables_role_sites }}"
+ 
   notify: restart iptables

@@ -2,6 +2,9 @@
 - hosts: proxy_server
   remote_user: root
   vars:
+    nginx_copy_https_cert: true
+    nginx_revproxy_config: true
+    add_iptables_for_nginx: true
     nginx_revproxy_sites:                                     
       - host: 192.168.0.100
         desc: t_server
