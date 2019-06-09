@@ -2,7 +2,7 @@
 
 # 1. Iptables Role规则说明
 
-iptables role脚本用于管理centons系统iptables防火墙（centos7需要卸载firewall防火墙，安装iptables-server）。
+iptables role脚本用于管理centons系统iptables防火墙（centos7需要卸载firewall防火墙，安装iptables-servers）。
 
 规则包含的内容：
 - 关闭iptables防火墙，取消开机启动设置；
@@ -108,7 +108,7 @@ ansible test_server -m shell -a "netstat -tnpl" -i inventory
         allowed_ports:
           - {port: "22", type: "tcp"}
           - {port: "443", type: "tcp"}
-      - host: 192.168.0.100
+      - host: 192.168.0.101
         allowed_ports:
           - {port: "22", type: "tcp"}
           - {port: "80", type: "tcp"}
