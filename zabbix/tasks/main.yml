@@ -22,7 +22,7 @@
   copy: src=tcp_status.sh dest=/usr/local/bin/tcp_status.sh mode=0755
 
 - name: Adding tcp status params
-  copy: src=tcp-status-params.conf dest=/etc/zabbix/zabbix_agentd.tcp-stats-params.conf
+  copy: src=tcp-status-params.conf dest=/etc/zabbix/zabbix_agentd.d/tcp-stats-params.conf
 
 - name: Adding disks monitor script
   copy: src=lld-disks.py dest=/usr/local/bin/lld-disks.py mode=755
