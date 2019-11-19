@@ -1,0 +1,8 @@
+---
+- hosts: test_server
+  remote_user: ops
+  become: yes
+  become_method: sudo
+  vars:
+    zabbix_server: "10.121.0.9"
+    zabbix_listen_port: 18629
