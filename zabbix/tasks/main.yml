@@ -1,0 +1,36 @@
+# Adding zabbix repository
+- name: Adding zabbix repository for Centos7
+  shell: rpm -i {{centos7_repo}}
+  when: 
+    - ansible_distribution == "CentOS" 
+    - ansible_distribution_major_version == "7"
+
+- name: Adding zabbix repository for Centos6
+  shell: rpm -i {{centos6_repo}}
+  when: 
+    - ansible_distribution == "CentOS" 
+    - ansible_distribution_major_version == "6"
+
+- name: Installing zabbix agent
+  yum: name=zabbix-agent state=latest
+  notify: start zabbix-agent
+
+- name: Setting zabbix-agent config file
+  template: src=zabbix_agent_config.j2 dest=/etc/zabbix/zabbix_agentd.conf
+  notify: restart zabbix-agent
+
+- name: Adding Tcp status script
+  copy: src=tcp_status.sh dest=/usr/local/bin/tcp_status.sh mode=0755
+
+- name: Adding tcp status params
+  copy: src=tcp-status-params.conf dest=/etc/zabbix/zabbix_agentd.d/tcp-status-params.conf
+  notify: restart zabbix-agent
+
+- name: Adding disks monitor script
+  copy: src=lld-disks.py dest=/usr/local/bin/lld-disks.py mode=755
+
+- name: Adding disks monitor params
+  copy: src=userparameter_diskstats.conf  dest=/etc/zabbix/zabbix_agentd.d/userparameter_diskstats.conf
+  notify: restart zabbix-agent
+
+
