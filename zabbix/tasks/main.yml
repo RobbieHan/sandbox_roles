@@ -12,7 +12,7 @@
     - ansible_distribution_major_version == "6"
 
 - name: Installing zabbix agent
-  yum: name=zabbix-agent state=latest
+  yum: name=zabbix-agent state=present
   notify: start zabbix-agent
 
 - name: Setting zabbix-agent config file
